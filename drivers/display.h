@@ -45,23 +45,18 @@ void set_char_at_video_memory(char character, int offset) {
     vidmem[offset + 1] = WHITE_ON_BLACK;
 }
 
-void print_string(char *string) {
-    int offset = get_cursor();
-    int i = 0;
-    while (string[i] != 0) {
-        if (offset >= MAX_ROWS * MAX_COLS * 2) {
-            offset = scroll_ln(offset);
-        }
-        if (string[i] == '\n') {
-            offset = move_offset_to_new_line(offset);
-        } else {
-            set_char_at_video_memory(string[i], offset);
-            offset += 2;
-        }
-        i++;
+void print_string() {
+    char string[] = "Null The Pointer (0x0), On bare metal? That's crazy!!";
+    volatile unsigned char *vidmem = (volatile unsigned char *) VIDEO_ADDRESS;
+    int offset = 0;
+    for (int i = 0; string[i]; i++) {
+        vidmem[offset] = string[i];
+        vidmem[offset+1] = WHITE_ON_BLACK;
+        offset += 2;
     }
     set_cursor(offset);
 }
+
 
 int get_row_from_offset(int offset) {
     return offset / (2 * MAX_COLS);

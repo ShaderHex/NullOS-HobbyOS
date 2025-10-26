@@ -19,11 +19,12 @@ os-image.bin: mbr.bin kernel.bin
 	cat $^ > $@
 
 run: os-image.bin
-	qemu-system-i386 -fda $<
+	qemu-system-i386 -hda os-image.bin
 
 debug: os-image.bin kernel.elf
-	qemu-system-i386 -S -s -fda os-image.bin &
-	i386-elf-gdb -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
+	gcc -m32 -ffreestanding -g -c kernel.c -o kernel.o
+	ld -m elf_i386 -o kernel.elf -Ttext 0x1000 kernel-entry.o kernel.o
+	qemu-system-i386 -fda os-image.bin -S -s -vga std
 
 clean:
 	$(RM) *.bin *.o *.dis *.elf
